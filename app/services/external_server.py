@@ -1,4 +1,5 @@
 import httpx
+import traceback
 from app.core.config import settings
 
 from app.log.logger_config import setup_logging
@@ -22,3 +23,12 @@ async def send_to_server(chat_id: str, user_input: str):
         logger.info(f"Sent to server: {payload}, received status: {resp}")
         
         return resp
+    
+async def bg_send_to_server(chat_id: str, text: str):
+    try:
+        await send_to_server(chat_id, text)
+    except Exception as e:
+        error_details = traceback.format_exc()
+        logger.error(f"Exception: {e}")
+        logger.error(f"Chi tiết lỗi: \n{error_details}")
+        raise

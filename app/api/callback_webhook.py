@@ -20,11 +20,17 @@ async def callback_webhook(secret: str, request: Request):
 
     if chat_id is None or response is None:
         logger.error("Nothing to process, missing chat_id or response")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing chat_id or content")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Missing chat_id or content"
+        )
     
     if response["error"]:
         logger.error(f"Error from external server: {response['error']}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail=response["error"]
+        )
 
     logger.info(f"Received callback for chat_id {chat_id} at {timestamp}")
 

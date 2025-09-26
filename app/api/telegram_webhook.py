@@ -2,8 +2,8 @@ import traceback
 from telegram import Update
 from app.core.config import settings
 from app.core.bot_client import app_ptb, send_message
-from app.services.external_server import send_to_server
-from fastapi import APIRouter, Request, HTTPException, status
+from app.services.external_server import bg_send_to_server
+from fastapi import APIRouter, Request, HTTPException, status, BackgroundTasks
 
 from app.log.logger_config import setup_logging
 
@@ -13,7 +13,11 @@ router = APIRouter()
 
 @router.post("/telegram/{secret}")
 @router.post("//telegram/{secret}")
-async def telegram_webhook(secret: str, request: Request):
+async def telegram_webhook(
+    secret: str, 
+    request: Request, 
+    background_tasks: BackgroundTasks
+):
     if secret != settings.callback_secret:
         logger.error("Invalid secret in Telegram webhook")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
@@ -33,13 +37,14 @@ async def telegram_webhook(secret: str, request: Request):
 
     try:
         logger.info(f"Received message from chat_id {chat_id}: {text}")
-        await send_to_server(chat_id, text)
+        # await send_to_server(chat_id, text)
+        background_tasks.add_task(bg_send_to_server, chat_id, text)
     except Exception as e:
         error_details = traceback.format_exc()
         logger.error(f"Exception: {e}")
         logger.error(f"Chi tiết lỗi: \n{error_details}")
         
-        await send_message(chat_id, f"Đã có lỗi khi gửi xử lý: {e}")
+        await send_message(chat_id, f"Em xin lỗi vì có thể hệ thống bên em đã phát sinh lỗi, mong anh/chị bỏ qua.")
         return {"ok": False, "error": str(e)}
 
     return {"ok": True}
