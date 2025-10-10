@@ -12,14 +12,15 @@ app_ptb = ApplicationBuilder().token(settings.telegram_token).build()
 # app_ptb = Application.builder().token(settings.telegram_token).build()
 
 async def send_message(chat_id: int, text: str):
-    logger.info(f"Sending message to chat_id {chat_id}: {text}")
-    
     try:
+        logger.info(f"Sending message to chat_id {chat_id}: {str(text)}")
+        
         return await bot.send_message(
             chat_id=chat_id, 
             text=text, 
             parse_mode=constants.ParseMode.MARKDOWN
         )
+        
     except Exception as e:
         error_details = traceback.format_exc()
         logger.error(f"Exception: {e}")

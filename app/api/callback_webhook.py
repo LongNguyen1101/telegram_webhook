@@ -16,7 +16,6 @@ async def callback_webhook(secret: str, request: Request):
     data = await request.json()
     chat_id = data.get("chat_id")
     response = data.get("response")
-    timestamp = data.get("timestamp")
 
     if chat_id is None or response is None:
         logger.error("Nothing to process, missing chat_id or response")
@@ -32,7 +31,7 @@ async def callback_webhook(secret: str, request: Request):
             detail=response["error"]
         )
 
-    logger.info(f"Received callback for chat_id {chat_id} at {timestamp}")
+    logger.info(f"Received callback for chat_id {chat_id}")
 
     # gửi kết quả về người dùng
     await send_message(chat_id=chat_id, text=response["content"])
